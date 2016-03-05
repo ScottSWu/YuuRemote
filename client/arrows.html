@@ -1,0 +1,119 @@
+<html>
+<head>
+    <title>Yuu-remote Client - arrow keys</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <meta content="text/html;charset=utf-8" http-equiv="Content-Type" />
+    <script src="http://cdn.socket.io/socket.io-1.4.5.js"></script>
+    <script type="text/javascript">
+//
+var sio = io("ws://" + ((location.search.length > 1) ? location.search.substring(1) : location.host) + ":988");
+
+function $(id) { return document.getElementById(id); };
+function $$(id) { return document.querySelectorAll(id); };
+
+function fullscreen() {
+    if (document.documentElement.requestFullScreen)
+        document.documentElement.requestFullScreen();
+    if (document.documentElement.mozRequestFullScreen)
+        document.documentElement.mozRequestFullScreen();
+    if (document.documentElement.webkitRequestFullScreen)
+        document.documentElement.webkitRequestFullScreen();
+}
+
+navigator.vibrate = navigator.vibrate || navigator.mozVibrate || navigator.webkitVibrate;
+
+window.addEventListener("load", function() {
+    sio.emit("auth", "yuu");
+    sio.on("auth", function(success) {
+        if (success) {
+            console.log("Connected");
+            
+            var kbd = function(e) {
+                e.target.style["background-color"] = "#88F";
+                var key = e.target.getAttribute("data-keycode");
+                sio.emit("kbt", key);
+                navigator.vibrate(50);
+            };
+            var kbu = function(e) {
+                e.target.style["background-color"] = "#FFF";
+                var key = e.target.getAttribute("data-keycode");
+                //sio.emit("kbt", key);
+            };
+            
+            Array.prototype.slice.call($$(".kb")).forEach(function(b) {
+                b.addEventListener("touchstart", kbd);
+                b.addEventListener("touchend", kbu);
+            });
+        }
+        else {
+            alert("Failed to authenticate.");
+        }
+    });
+    
+    $("fs").addEventListener("click", function(e) {
+        fullscreen();
+        e.stopPropogation();
+    });
+    $("rl").addEventListener("click", function(e) {
+        location.reload();
+        e.stopPropogation();
+    });
+});
+//
+    </script>
+    <style type="text/css">
+/**/
+body {
+    overflow: hidden;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    user-select: none;
+}
+
+.kb {
+    position: absolute;
+    
+    width: 40vw;
+    height: 40vw;
+    
+    border: 1vw dashed black;
+    border-radius: 3vw;
+    background-color: #FFF;
+}
+
+#bU { transform: translate(30vw, 20vw) }
+#bL { transform: translate(5vw, 65vw) }
+#bR { transform: translate(50vw, 65vw) }
+#bD { transform: translate(30vw, 110vw) }
+
+#fs {
+    position: absolute;
+    font-family: Helvetica;
+    transform: translate(2vw, 2vw);
+    font-size: 10vw;
+    border: 1vw solid red;
+    border-radius: 1vw;
+    padding: 4vw;
+}
+
+#rl {
+    position: absolute;
+    font-family: Helvetica;
+    transform: translate(80vw, 2vw);
+    font-size: 10vw;
+    border: 1vw solid blue;
+    border-radius: 1vw;
+    padding: 4vw;
+}
+/**/
+    </style>
+</head>
+<body>
+    <div id="fs">F</div>
+    <div id="rl">R</div>
+    <div id="bU" data-keycode="up" class="kb"></div>
+    <div id="bD" data-keycode="down" class="kb"></div>
+    <div id="bL" data-keycode="left" class="kb"></div>
+    <div id="bR" data-keycode="right" class="kb"></div>
+</body>
+</html>

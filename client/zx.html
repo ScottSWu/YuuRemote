@@ -1,0 +1,113 @@
+<html>
+<head>
+    <title>Yuu-remote Client - osu! standard zx</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <meta content="text/html;charset=utf-8" http-equiv="Content-Type" />
+    <script src="http://cdn.socket.io/socket.io-1.4.5.js"></script>
+    <script type="text/javascript">
+//
+var sio = io("ws://" + ((location.search.length > 1) ? location.search.substring(1) : location.host) + ":988");
+
+function $(id) { return document.getElementById(id); };
+function $$(id) { return document.querySelectorAll(id); };
+
+function fullscreen() {
+    if (document.documentElement.requestFullScreen)
+        document.documentElement.requestFullScreen();
+    if (document.documentElement.mozRequestFullScreen)
+        document.documentElement.mozRequestFullScreen();
+    if (document.documentElement.webkitRequestFullScreen)
+        document.documentElement.webkitRequestFullScreen();
+}
+
+window.addEventListener("load", function() {
+    sio.emit("auth", "yuu");
+    sio.on("auth", function(success) {
+        if (success) {
+            console.log("Connected");
+            
+            var kbd = function(e) {
+                e.target.style["background-color"] = "#88F";
+                var key = e.target.getAttribute("data-keycode");
+                sio.emit("kbd", key);
+            };
+            var kbu = function(e) {
+                e.target.style["background-color"] = "#FFF";
+                var key = e.target.getAttribute("data-keycode");
+                sio.emit("kbu", key);
+            };
+            
+            Array.prototype.slice.call($$(".kb")).forEach(function(b) {
+                b.addEventListener("touchstart", kbd);
+                b.addEventListener("touchend", kbu);
+            });
+        }
+        else {
+            alert("Failed to authenticate.");
+        }
+    });
+    
+    $("fs").addEventListener("click", function(e) {
+        fullscreen();
+        e.stopPropogation();
+    });
+    $("rl").addEventListener("click", function(e) {
+        location.reload();
+        e.stopPropogation();
+    });
+});
+//
+    </script>
+    <style type="text/css">
+/**/
+body {
+    overflow: hidden;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    user-select: none;
+}
+
+.kb {
+    position: absolute;
+    transform-origin: 50% 50%;
+    
+    width: 32vh;
+    height: 64vh;
+    margin-top: -32vh;
+    margin-left: -16vh;
+    
+    border: 1vh dashed black;
+    border-radius: 3vh;
+    background-color: #FFF;
+}
+
+#bZ { transform: translate(20vh, 60vh) rotate(15deg); }
+#bX { transform: translate(60vh, 72vh) rotate(15deg); }
+
+#fs {
+    position: absolute;
+    font-family: Helvetica;
+    transform: translate(16vh, 2vh);
+    font-size: 10vh;
+    border: 1vh solid red;
+    border-radius: 1vh;
+}
+
+#rl {
+    position: absolute;
+    font-family: Helvetica;
+    transform: translate(128vh, 2vh);
+    font-size: 10vh;
+    border: 1vh solid blue;
+    border-radius: 1vh;
+}
+/**/
+    </style>
+</head>
+<body>
+    <div id="fs">Fullscreen</div>
+    <div id="rl">Reload</div>
+    <div id="bZ" data-keycode="z" class="kb"></div>
+    <div id="bX" data-keycode="x" class="kb"></div>
+</body>
+</html>

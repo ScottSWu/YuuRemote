@@ -1,9 +1,9 @@
 <html>
 <head>
-    <title>Yuu-remote Client</title>
+    <title>Yuu-remote Client - osu! ctb</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
     <meta content="text/html;charset=utf-8" http-equiv="Content-Type" />
-    <script src="http://cdn.socket.io/socket.io-1.3.7.js"></script>
+    <script src="http://cdn.socket.io/socket.io-1.4.5.js"></script>
     <script type="text/javascript">
 //
 var sio = io("ws://" + ((location.search.length > 1) ? location.search.substring(1) : location.host) + ":988");
@@ -63,6 +63,9 @@ window.addEventListener("load", function() {
 /**/
 body {
     overflow: hidden;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    user-select: none;
 }
 
 .kb {
@@ -104,10 +107,10 @@ body {
     </style>
 </head>
 <body>
+    <div id="fs">Fullscreen</div>
+    <div id="rl">Reload</div>
     <div id="bF" data-keycode="f" class="kb"></div>
     <div id="bJ" data-keycode="j" class="kb"></div>
     <div id="bL" data-keycode="l" class="kb"></div>
-    <div id="fs">Fullscreen</div>
-    <div id="rl">Reload</div>
 </body>
 </html>

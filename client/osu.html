@@ -1,0 +1,119 @@
+<html>
+<head>
+    <title>Yuu-remote Client - osu! standard tablet</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <meta content="text/html;charset=utf-8" http-equiv="Content-Type" />
+    <script src="http://cdn.socket.io/socket.io-1.4.5.js"></script>
+    <script type="text/javascript">
+//
+var sio = io("ws://" + ((location.search.length > 1) ? location.search.substring(1) : location.host) + ":988");
+
+function $(id) { return document.querySelector(id); };
+function $$(id) { return document.querySelectorAll(id); };
+
+function fullscreen() {
+    if (document.documentElement.requestFullScreen)
+        document.documentElement.requestFullScreen();
+    if (document.documentElement.mozRequestFullScreen)
+        document.documentElement.mozRequestFullScreen();
+    if (document.documentElement.webkitRequestFullScreen)
+        document.documentElement.webkitRequestFullScreen();
+}
+
+window.addEventListener("load", function() {
+    sio.emit("auth", "yuu");
+    sio.on("auth", function(success) {
+        if (success) {
+            console.log("Connected");
+            
+            sio.on("ss", function(screensize) {
+                var ratio = screensize.width * 80 / screensize.height;
+                $("#area").style.width = ratio + "vh";
+                $("#area").style.height = "80vh";
+            
+                var lastTouch = 0;
+                var mm = function(e) {
+                    var now = Date.now();
+                    if (now - lastTouch >= 2) {
+                        var touch = e.touches[0];
+                        var target = touch.target;
+                        
+                        var px = (touch.clientX - target.offsetLeft) / target.offsetWidth;
+                        var py = (touch.clientY - target.offsetTop) / target.offsetHeight;
+                        var cx = ~~(px * screensize.width);
+                        var cy = ~~(py * screensize.height);
+                        sio.emit("msa", { x: cx, y: cy});
+                        
+                        lastTouch = now;
+                    }
+                };
+                $("#area").addEventListener("touchstart", mm);
+                $("#area").addEventListener("touchend", mm);
+                $("#area").addEventListener("touchmove", mm);
+            });
+            
+            sio.emit("ss");
+        }
+        else {
+            alert("Failed to authenticate.");
+        }
+    });
+    
+    $("#fs").addEventListener("click", function(e) {
+        fullscreen();
+        e.stopPropogation();
+    });
+    $("#rl").addEventListener("click", function(e) {
+        location.reload();
+        e.stopPropogation();
+    });
+});
+//
+    </script>
+    <style type="text/css">
+/**/
+body {
+    overflow: hidden;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    user-select: none;
+}
+
+#area {
+    position: absolute;
+    top: 5vh;
+    left: 24vh;
+    
+    border: 1vh dashed black;
+    border-radius: 3vh;
+    background-color: #FFF;
+}
+
+#fs {
+    position: absolute;
+    font-family: Helvetica;
+    transform: translate(2vh, 2vh);
+    font-size: 10vh;
+    border: 1vh solid red;
+    border-radius: 1vh;
+    padding: 4vh;
+}
+
+#rl {
+    position: absolute;
+    font-family: Helvetica;
+    transform: translate(2vh, 64vh);
+    font-size: 10vh;
+    border: 1vh solid blue;
+    border-radius: 1vh;
+    padding: 4vh;
+}
+/**/
+    </style>
+</head>
+<body>
+    <div id="fs">F</div>
+    <div id="rl">R</div>
+    <div id="area"></div>
+</body>
+</html>
